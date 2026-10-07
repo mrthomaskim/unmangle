@@ -73,11 +73,11 @@ def test_checkout_carries_over_remaining_trial(client, store, login, monkeypatch
 
 def test_signin_creates_trial_once_per_address(app, store):
     from app.auth import _finish_signin
-    claims = {"sub": "g-1", "email": "Thomas@Example.com", "name": "Thomas"}
+    claims = {"sub": "g-1", "email": "Jane@Example.com", "name": "Jane"}
     with app.test_request_context():
         _finish_signin(claims, None)
     u = store.get_user("g-1")
-    assert u["email"] == "thomas@example.com"
+    assert u["email"] == "jane@example.com"
     assert u["trial_ends_at"] - now() > timedelta(days=13)
 
     store.delete_user("g-1")

@@ -50,10 +50,10 @@ def test_finish_gmail_stores_encrypted_token_and_starts_watch(app, store, fake_g
                             scopes=None, refresh_token="1//refresh")
     with app.test_request_context():
         session["uid"] = "u1"
-        r = auth._finish_gmail({"email": "Thomas@Gmail.com"}, creds)
+        r = auth._finish_gmail({"email": "Jane@Gmail.com"}, creds)
     u = store.get_user("u1")
     assert r.location.endswith("/onboarding")
-    assert u["gmail_email"] == "thomas@gmail.com" and u["gmail_connected"]
+    assert u["gmail_email"] == "jane@gmail.com" and u["gmail_connected"]
     assert u["refresh_token_enc"] != "1//refresh" and crypto.decrypt(u["refresh_token_enc"]) == "1//refresh"
     assert fake_gmail.watching and u["history_id"] == fake_gmail.history_id
 

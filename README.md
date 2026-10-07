@@ -58,31 +58,16 @@ Pay with card `4242 4242 4242 4242`. To test a trial running out without waiting
 
 ## Deploy to GCP
 
-Prerequisites: a GCP project with billing, `gcloud` logged in, and Python 3 locally.
+Infrastructure is Terraform in [`infra/`](infra/README.md). It creates Cloud Run, Firestore with TTL, the Pub/Sub push subscription, Cloud Tasks, Scheduler, Secret Manager, Artifact Registry, service accounts, and a budget alert in a new project. Short version, run from Cloud Shell:
 
-1. **OAuth consent screen** (Google Auth Platform):
-   - Branding: app name, support email, app domain, homepage, `/privacy`, `/terms`.
-   - Audience: External. Click **Publish app** for production, or stay in Testing and add test users. Testing-mode tokens expire every 7 days.
-   - Data access: add `openid`, `userinfo.email`, `userinfo.profile`, and `gmail.modify`.
-   - Clients: create a **Web application** client. You'll add the production redirect URI after step 2.
-2. **Deploy:**
-   ```bash
-   PROJECT_ID=your-project \
-   GOOGLE_CLIENT_ID=... GOOGLE_CLIENT_SECRET=... STRIPE_SECRET_KEY=sk_test_... \
-   SUPPORT_EMAIL=you@yourdomain.com ./deploy.sh
-   ```
-   This enables the APIs and creates Firestore with TTL policies, two service accounts, the secrets (`SECRET_KEY` and `TOKEN_ENC_KEY` are generated for you), the Pub/Sub topic and authenticated push subscription, the Cloud Tasks queue, Cloud Run, and both Scheduler jobs. It prints the URL when it finishes.
-3. **Add the redirect URI** it printed (`https://…/auth/callback`) to your OAuth client.
-4. **Stripe:**
-   ```bash
-   STRIPE_SECRET_KEY=sk_test_... python3 scripts/stripe_setup.py --base-url https://YOUR_URL --webhook
-   STRIPE_WEBHOOK_SECRET=whsec_... STRIPE_PORTAL_CONFIG=bpc_... PROJECT_ID=your-project ./deploy.sh
-   ```
-   Repeat with `sk_live_...` when you go live. Live mode has its own products, webhook, and portal config.
-5. **Custom domain (recommended; Google verification requires one):** map the domain to Cloud Run, using a Cloud Run domain mapping or a load balancer. Then re-run with `BASE_URL=https://yourdomain.com ./deploy.sh` and update the OAuth redirect URI and the Stripe webhook URL to match.
-6. **Weekly digest email:** set `SMTP_HOST`, `SMTP_USER`, `SMTP_PASSWORD`, and `MAIL_FROM` for any SMTP provider (Postmark, SendGrid, or SES), then re-run. Set up SPF and DKIM for the sending domain. If SMTP isn't configured, digests are only logged.
+```bash
+PROJECT_ID=unmangle-prod-1234 BILLING_ACCOUNT=XXXXXX-XXXXXX-XXXXXX ./infra/bootstrap.sh
+cd infra/terraform && terraform init -backend-config=backend.hcl && terraform apply && cd ../..
+./infra/set-secret.sh GOOGLE_CLIENT_ID   # and the other secrets listed by `terraform output`
+./infra/release.sh                       # build in Cloud Build and roll out
+```
 
-Re-run `./deploy.sh` after code changes. It's idempotent, and it never regenerates `TOKEN_ENC_KEY`. Losing that key makes every stored Gmail token unreadable, and every user would have to reconnect.
+See [infra/README.md](infra/README.md) for the full runbook, including the browser-only steps (OAuth consent screen, OAuth client, Stripe).
 
 ## How the money flow works
 
@@ -119,7 +104,7 @@ app/
   store.py        Firestore + in-memory implementations
   templates/, static/
 scripts/stripe_setup.py   products, prices, portal config, webhook
-deploy.sh                 full GCP stack
+infra/                    Terraform + bootstrap/release/secret scripts
 tests/                    fakes for Gmail + Stripe; covers the flows above
 ```
 
