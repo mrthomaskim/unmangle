@@ -179,7 +179,7 @@ def client(app):
 
 def make_user(store, uid="u1", *, connected=True, trial_days=14, **extra):
     data = {
-        "email": f"{uid}@example.com", "name": "Thomas Kim", "created_at": now(),
+        "email": f"{uid}@example.com", "name": "Jane Doe", "created_at": now(),
         "trial_ends_at": now() + timedelta(days=trial_days), "keywords": [], "allowlist": [],
         "use_default_rules": True, "digest_enabled": True, "moved_count": 0,
         "gmail_connected": connected, "onboarded": True,

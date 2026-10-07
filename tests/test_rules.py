@@ -22,7 +22,7 @@ def test_normalize(raw, expected):
 
 def test_classify_builtins_and_structure():
     assert classify('"C.ARSHIELD" <x@spam.com>', "Your quote", "me@gmail.com").startswith("Built-in")
-    assert classify("A <a@b.com>", "hi", "mrthomaskim@gmail.com@7c1x6symq8kns8edt.__random_anm") \
+    assert classify("A <a@b.com>", "hi", "jane.doe@gmail.com@7c1x6symq8kns8edt.__random_anm") \
         == "Built-in: forged recipient"
     assert classify("X <D_eploying.Ltd.BIMMER.Ltd.MCK.Ltd.MCK@corsetdeals.com>", "hi", "me") \
         == "Built-in: junk sender address"

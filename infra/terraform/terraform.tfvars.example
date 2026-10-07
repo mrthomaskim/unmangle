@@ -1,0 +1,14 @@
+# Copied to terraform.tfvars by bootstrap.sh. Edit, then: terraform plan / apply.
+project_id      = "unmangle-prod-xxxx"
+region          = "us-central1"
+billing_account = "XXXXXX-XXXXXX-XXXXXX" # enables the budget alert; "" to skip
+budget_usd      = 10
+
+support_email = "support@example.com"
+mail_from     = "Unmangle <digest@example.com>"
+
+# Fill in after the first apply / Stripe setup, then apply again:
+# custom_domain_url    = "https://unmangle.app"
+# stripe_portal_config = "bpc_..."
+# smtp_host            = "smtp.postmarkapp.com"
+# smtp_user            = "..."

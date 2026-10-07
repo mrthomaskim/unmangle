@@ -1,0 +1,10 @@
+# Used by release.sh. Builds the app image and pushes it to Artifact Registry.
+steps:
+  - name: gcr.io/cloud-builders/docker
+    args: ["build", "-t", "${_IMAGE}", "."]
+images:
+  - "${_IMAGE}"
+options:
+  logging: CLOUD_LOGGING_ONLY   # required when building as a custom service account
+  machineType: E2_MEDIUM
+timeout: 900s
