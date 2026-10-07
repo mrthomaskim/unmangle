@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Privacy policy · {{ app_name }}{% endblock %}
+{% block main_class %}prose{% endblock %}
+{% block content %}
+{# TEMPLATE: have a lawyer review before launch. Google's OAuth verification reviewers read this page. #}
+<h1>Privacy policy</h1>
+<p class="muted">Last updated: [DATE]. Operator: [YOUR LEGAL NAME OR COMPANY], [ADDRESS].</p>
+
+<h2>What {{ app_name }} does</h2>
+<p>{{ app_name }} moves spam out of your Gmail inbox. To do that it needs permission to read message headers and change message labels in your Gmail account.</p>
+
+<h2>Data we access from Google</h2>
+<ul>
+  <li><strong>Your Google profile:</strong> name, email address and account ID, to sign you in.</li>
+  <li><strong>Gmail message headers:</strong> the From, To and Subject lines of messages arriving in your inbox, and of recent messages in your Spam folder when you ask for keyword suggestions. We never request message bodies or attachments.</li>
+  <li><strong>Gmail labels:</strong> we add the Spam label and remove the Inbox label from messages that match your rules, and reverse that when you click “Not spam”.</li>
+</ul>
+
+<h2>What we store</h2>
+<ul>
+  <li>Your account details, rules, and billing status.</li>
+  <li>An encrypted Gmail access token, so filtering works while you're away.</li>
+  <li>For each message we moved: its sender, subject, time and the rule that matched. These records are deleted automatically after {{ config.ACTIVITY_RETENTION_DAYS }} days.</li>
+</ul>
+<p>Headers we read but don't act on are not stored.</p>
+
+<h2>How we use it</h2>
+<p>Only to provide the filtering, activity list and weekly summary you see in the app. We do not sell your data, use it for advertising, share it with third parties except the processors listed below, or use it to train AI or machine-learning models. Our staff do not read your data unless you ask us for support and give permission, or the law requires it.</p>
+<p>{{ app_name }}'s use and transfer of information received from Google APIs adheres to the <a href="https://developers.google.com/terms/api-services-user-data-policy">Google API Services User Data Policy</a>, including the Limited Use requirements.</p>
+
+<h2>Processors</h2>
+<ul>
+  <li>Google Cloud: hosting and database (United States).</li>
+  <li>Stripe: payments. Stripe receives your email address and card details; we never see your full card number.</li>
+  <li>[EMAIL PROVIDER]: delivery of the weekly summary email.</li>
+</ul>
+
+<h2>Your choices</h2>
+<ul>
+  <li><strong>Disconnect Gmail</strong> in Settings to stop filtering and revoke our access at Google.</li>
+  <li><strong>Delete your account</strong> in Settings to erase your rules, activity and tokens immediately. Billing records Stripe must keep for tax law are kept by Stripe.</li>
+  <li>You can also revoke access at any time at <a href="https://myaccount.google.com/connections">myaccount.google.com/connections</a>.</li>
+</ul>
+
+<h2>Security</h2>
+<p>Data is encrypted in transit and at rest. Gmail tokens are additionally encrypted with a key held separately from the database.</p>
+
+<h2>Contact</h2>
+<p><a href="mailto:{{ support_email }}">{{ support_email }}</a></p>
+{% endblock %}

@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Terms of service · {{ app_name }}{% endblock %}
+{% block main_class %}prose{% endblock %}
+{% block content %}
+{# TEMPLATE: have a lawyer review before launch. #}
+<h1>Terms of service</h1>
+<p class="muted">Last updated: [DATE]. These terms are between you and [YOUR LEGAL NAME OR COMPANY].</p>
+
+<h2>The service</h2>
+<p>{{ app_name }} moves email that matches your rules from your Gmail inbox to your Spam folder. It never deletes mail. Filtering can make mistakes in both directions; check your Spam folder and Activity page if you're expecting something important.</p>
+
+<h2>Free trial and billing</h2>
+<ul>
+  <li>New accounts get a 14-day free trial with no card required. One trial per Google account.</li>
+  <li>Plans cost $3 per month or $30 per year, billed in advance through Stripe, and renew automatically until cancelled.</li>
+  <li>If you subscribe during your trial, you're not charged until the trial ends.</li>
+  <li>You can cancel any time from Manage billing. Service continues until the end of the paid period. Payments are non-refundable except where the law requires otherwise.</li>
+  <li>We'll give at least 30 days' notice by email before changing prices.</li>
+</ul>
+
+<h2>Your responsibilities</h2>
+<p>Connect only Gmail accounts you own or are authorised to manage. Don't use the service to interfere with other people's mail.</p>
+
+<h2>Liability</h2>
+<p>The service is provided as is. To the extent the law allows, our total liability is limited to the amount you paid us in the 12 months before the claim. We're not liable for mail that was filtered incorrectly or not filtered.</p>
+
+<h2>Ending the service</h2>
+<p>You can delete your account at any time in Settings. We may suspend accounts that abuse the service, with notice where possible.</p>
+
+<h2>Contact</h2>
+<p><a href="mailto:{{ support_email }}">{{ support_email }}</a></p>
+{% endblock %}

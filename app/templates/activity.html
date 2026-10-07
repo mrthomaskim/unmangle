@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Activity · {{ app_name }}{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1>Activity</h1>
+  <p class="lede">Everything {{ app_name }} moved to your Spam folder in the last {{ retention }} days. If something here is real mail, click “Not spam” to move it back.</p>
+</div>
+{% if rows %}
+<div class="table-wrap">
+<table class="activity">
+  <thead><tr><th scope="col">When</th><th scope="col">From and subject</th><th scope="col">Why</th><th scope="col"><span class="sr-only">Action</span></th></tr></thead>
+  <tbody>
+  {% for r in rows %}
+  <tr {% if r.restored %}class="restored"{% endif %}>
+    <td class="when"><time datetime="{{ r.ts.isoformat() }}">{{ r.ts.strftime('%b %-d, %-I:%M %p') }} UTC</time></td>
+    <td><code class="hdr">{{ r['from'] }}</code><span class="subj">{{ r.subject }}</span></td>
+    <td class="why">{{ r.reason }}</td>
+    <td class="act">
+      {% if r.restored %}<span class="muted">Moved back</span>{% else %}
+      <form method="post" action="{{ url_for('views.restore', msg_id=r.id) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button class="btn btn-quiet btn-small">Not spam</button>
+      </form>{% endif %}
+    </td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% else %}
+<p class="empty">Nothing has been moved yet. New spam is checked as it arrives, or you can <a href="{{ url_for('views.dashboard') }}">run a cleanup</a> on your existing inbox.</p>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% block title %}Overview · {{ app_name }}{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1>Hi{% if user.name %}, {{ user.name.split(' ')[0] }}{% endif %}</h1>
+  <p class="status-line">
+    {% if not user.gmail_connected %}
+      <span class="dot dot-off"></span> Gmail isn't connected yet.
+    {% elif reauth %}
+      <span class="dot dot-bad"></span> Filtering is paused until you reconnect Gmail.
+    {% elif not access %}
+      <span class="dot dot-off"></span> Filtering is paused for {{ user.gmail_email }}.
+    {% else %}
+      <span class="dot dot-on"></span> Filtering {{ user.gmail_email }}.
+    {% endif %}
+  </p>
+</div>
+
+{% if not user.gmail_connected %}
+<section class="panel panel-call">
+  <h2>Connect your Gmail</h2>
+  <p>Google will ask for permission to read message headers and move mail. {{ app_name }} uses that only to send spam to your Spam folder.</p>
+  <form method="post" action="{{ url_for('auth.connect_gmail') }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <button class="btn">Connect Gmail</button>
+  </form>
+</section>
+{% endif %}
+
+{% if user.gmail_connected %}
+<section class="stats" aria-label="Totals">
+  <div class="stat"><span class="stat-n">{{ week_count }}</span><span class="stat-l">moved to Spam in the last 7 days</span></div>
+  <div class="stat"><span class="stat-n">{{ user.moved_count or 0 }}</span><span class="stat-l">moved since you joined</span></div>
+  <div class="stat"><span class="stat-n">{{ (user.keywords or [])|length }}</span><span class="stat-l">of your own keywords</span></div>
+</section>
+
+<section class="section-tight">
+  <div class="row-head">
+    <h2>Recently moved</h2>
+    <a href="{{ url_for('views.activity') }}">See all activity</a>
+  </div>
+  {% if recent %}
+  <ul class="mini-list">
+    {% for r in recent %}
+    <li><code class="hdr">{{ r['from'] }}</code><span class="muted">{{ r.subject }}{% if r.restored %} (moved back){% endif %}</span></li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p class="empty">Nothing moved yet. New spam is checked the moment it arrives. To deal with what's already in your inbox, run a cleanup below.</p>
+  {% endif %}
+</section>
+
+<section class="section-tight">
+  <h2>Clean up your inbox</h2>
+  {% if user.backfill_status == 'running' %}
+    <p><span class="dot dot-on pulse"></span> Cleanup in progress{% if user.backfill_result %}: {{ user.backfill_result.checked }} checked, {{ user.backfill_result.moved }} moved so far{% endif %}. Refresh to update.</p>
+  {% else %}
+    {% if user.backfill_status == 'done' and user.backfill_result %}
+      <p class="muted">Last cleanup checked {{ user.backfill_result.checked }} messages and moved {{ user.backfill_result.moved }}.</p>
+    {% endif %}
+    <form method="post" action="{{ url_for('views.backfill') }}" class="inline-form">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <label for="days">Check mail from the last</label>
+      <select id="days" name="days"><option value="60">60 days</option><option value="30">30 days</option></select>
+      <button class="btn btn-quiet" {% if not access %}disabled{% endif %}>Run cleanup</button>
+    </form>
+  {% endif %}
+</section>
+{% endif %}
+
+<section class="section-tight" id="plan">
+  <h2>Plan</h2>
+  {% if state == 'subscribed' or state == 'past_due' %}
+    <p>{{ 'Yearly' if user.plan == 'annual' else 'Monthly' }} plan.
+      {% if user.subscription_status == 'trialing' %}Free until {{ user.current_period_end.strftime('%B %-d') if user.current_period_end }}, then billed.
+      {% elif user.cancel_at_period_end %}Ends on {{ user.current_period_end.strftime('%B %-d, %Y') if user.current_period_end }}.
+      {% elif user.current_period_end %}Renews {{ user.current_period_end.strftime('%B %-d, %Y') }}.{% endif %}
+    </p>
+    <form method="post" action="{{ url_for('billing.portal') }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button class="btn btn-quiet">Manage billing</button>
+    </form>
+  {% else %}
+    <p>{% if state == 'trial' %}Free trial, {{ days_left }} day{{ '' if days_left == 1 else 's' }} left. Subscribe now and you'll still get the rest of your trial before the first charge.{% else %}Your free trial has ended.{% endif %}</p>
+    <div class="plan-pick">
+      <form method="post" action="{{ url_for('billing.checkout') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="plan" value="monthly">
+        <button class="btn btn-quiet">$3 per month</button>
+      </form>
+      <form method="post" action="{{ url_for('billing.checkout') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="plan" value="annual">
+        <button class="btn">$30 per year</button>
+      </form>
+    </div>
+  {% endif %}
+</section>
+{% endblock %}

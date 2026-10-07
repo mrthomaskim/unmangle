@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block title %}{{ app_name }}: spam filter for Gmail{% endblock %}
+{% block body_class %}landing{% endblock %}
+{% block content %}
+<section class="hero">
+  <div class="hero-copy">
+    <h1>Spam that spells its name with dots still gets caught.</h1>
+    <p class="lede">Warranty and insurance spammers write “C.ARSHIELD” and “FID.ELI.TY LI.FE” so Gmail's filters miss them. {{ app_name }} strips out the junk characters, reads the real name, and moves the message to Spam before you see it.</p>
+    <div class="hero-actions">
+      <a class="btn" href="{{ url_for('auth.login') }}">Start 14-day free trial</a>
+      <span class="hint">No card needed. Sign in with Google.</span>
+    </div>
+  </div>
+
+  <figure class="demo" aria-label="Example: mangled sender names resolving to the keyword that catches them">
+    <figcaption>From lines from a real inbox</figcaption>
+    <ol class="demo-list">
+      <li class="demo-row">
+        <code class="raw">FID<span class="j">.</span>ELI<span class="j">.</span>TY<span class="j"> </span>LI<span class="j">.</span>FE</code>
+        <span class="out">fidelitylife</span><span class="tag tag-spam">Moved to Spam</span>
+      </li>
+      <li class="demo-row">
+        <code class="raw">C<span class="j">.</span>ARSHIELD</code>
+        <span class="out">carshield</span><span class="tag tag-spam">Moved to Spam</span>
+      </li>
+      <li class="demo-row">
+        <code class="raw">E<span class="j">^</span>NDURANCE</code>
+        <span class="out">endurance</span><span class="tag tag-spam">Moved to Spam</span>
+      </li>
+      <li class="demo-row">
+        <code class="raw">A<span class="j">.</span>UT<span class="j">.</span>O<span class="j">.</span>PLAN<span class="j">.</span>A<span class="j">.</span>DV<span class="j">.</span>ISO<span class="j">.</span>RS</code>
+        <span class="out">autoplanadvisors</span><span class="tag tag-spam">Moved to Spam</span>
+      </li>
+      <li class="demo-row">
+        <code class="raw">FiDelity<span class="j">      </span>Life<span class="j">^^^^^^^</span></code>
+        <span class="out">fidelitylife</span><span class="tag tag-spam">Moved to Spam</span>
+      </li>
+      <li class="demo-row demo-keep">
+        <code class="raw">Dr. Patel's Office</code>
+        <span class="out">no match</span><span class="tag tag-keep">Stays in inbox</span>
+      </li>
+    </ol>
+  </figure>
+</section>
+
+<section class="section">
+  <h2>How it works</h2>
+  <ol class="steps">
+    <li><h3>Connect Gmail</h3><p>Sign in with Google and allow {{ app_name }} to sort your mail. No password to create.</p></li>
+    <li><h3>Pick what to block</h3><p>We look at what's already in your Spam folder and suggest the names worth blocking. Built-in rules cover the usual warranty and insurance senders.</p></li>
+    <li><h3>Forget about it</h3><p>New mail is checked within seconds of arriving. If something good gets caught, one click moves it back and keeps that sender safe from then on.</p></li>
+  </ol>
+</section>
+
+<section class="section" id="pricing">
+  <h2>Pricing</h2>
+  <p class="muted">Every account starts with 14 days free. No card until you decide to keep it.</p>
+  <div class="plans">
+    <div class="plan">
+      <h3>Monthly</h3>
+      <p class="price"><span class="amount">$3</span> per month</p>
+      <p class="muted">Cancel any time.</p>
+    </div>
+    <div class="plan plan-best">
+      <h3>Yearly</h3>
+      <p class="price"><span class="amount">$30</span> per year</p>
+      <p class="muted">Two months free compared to monthly.</p>
+    </div>
+  </div>
+  <p><a class="btn" href="{{ url_for('auth.login') }}">Start free trial</a></p>
+</section>
+
+<section class="section narrow">
+  <h2>Questions</h2>
+  <dl class="faq">
+    <dt>What can you see in my email?</dt>
+    <dd>Only the From, To and Subject lines. {{ app_name }} never opens message bodies or attachments, never sells data, and never uses your mail to train AI models.</dd>
+    <dt>Why does Google warn me when I connect?</dt>
+    <dd>Apps that can move Gmail messages go through a Google security review. Until ours is complete, Google shows a warning during sign-in.</dd>
+    <dt>What if a real email gets caught?</dt>
+    <dd>Open Activity, click “Not spam”, and the message goes back to your inbox. That sender is added to your safe list automatically.</dd>
+    <dt>How do I stop?</dt>
+    <dd>Disconnect Gmail or delete your account in Settings. Either one revokes our access at Google immediately.</dd>
+  </dl>
+</section>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='demo.js') }}" defer></script>{% endblock %}

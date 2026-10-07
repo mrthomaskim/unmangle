@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Suggested keywords · {{ app_name }}{% endblock %}
+{% block content %}
+<div class="page-head">
+  {% if not from_rules %}<p class="progress">Step 1 of 2</p>{% endif %}
+  <h1>What's already in your Spam</h1>
+  <p class="lede">We read the sender lines of {{ scanned }} recent message{{ '' if scanned == 1 else 's' }} in your Spam folder and grouped the names that keep showing up. Tick the ones you want blocked from your inbox too.</p>
+</div>
+
+{% if error %}<p class="flash flash-error">{{ error }}</p>{% endif %}
+
+<form method="post" action="{{ url_for('views.onboarding_save') }}">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  {% if from_rules %}<input type="hidden" name="then" value="rules">{% endif %}
+
+  {% set fresh = suggestions|rejectattr('already_caught')|list %}
+  {% set covered = suggestions|selectattr('already_caught')|list %}
+
+  {% if fresh %}
+  <ul class="suggest-list">
+    {% for s in fresh %}
+    <li class="suggest">
+      <input type="checkbox" name="keyword" value="{{ s.keyword }}" id="kw{{ loop.index }}" {% if s.mangled %}checked{% endif %}>
+      <label for="kw{{ loop.index }}">
+        <span class="suggest-key">{{ s.keyword }}</span>
+        <span class="suggest-meta">{{ s.count }} message{{ '' if s.count == 1 else 's' }}{% if s.mangled %}, name disguised with symbols{% endif %}</span>
+        <span class="suggest-samples">
+          {% for x in s.samples %}<code class="hdr">{{ x['from'] }}</code>{% endfor %}
+        </span>
+      </label>
+    </li>
+    {% endfor %}
+  </ul>
+  {% elif not error %}
+  <p class="empty">Nothing in your Spam folder repeats often enough to suggest. You can add keywords yourself on the Rules page.</p>
+  {% endif %}
+
+  {% if covered %}
+  <details class="covered">
+    <summary>{{ covered|length }} more already caught by your current rules</summary>
+    <p class="muted">{% for s in covered %}{{ s.keyword }}{% if not loop.last %}, {% endif %}{% endfor %}</p>
+  </details>
+  {% endif %}
+
+  <div class="form-actions">
+    {% if fresh %}<button class="btn">Add selected keywords</button>{% endif %}
+    {% if not from_rules %}<button class="btn btn-quiet" name="keyword" value="">Skip for now</button>{% endif %}
+  </div>
+</form>
+{% endblock %}

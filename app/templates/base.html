@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}{{ app_name }}{% endblock %}</title>
+  <meta name="description" content="{{ app_name }} catches spam that hides behind dots, carets and odd spacing, and moves it out of your Gmail inbox.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+  <link rel="stylesheet" href="{{ url_for('static', filename='app.css') }}">
+  <link rel="icon" href="{{ url_for('static', filename='icon.svg') }}" type="image/svg+xml">
+</head>
+<body class="{% block body_class %}{% endblock %}">
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="topbar">
+    <div class="wrap topbar-inner">
+      <a class="wordmark" href="{{ url_for('views.index') }}">{{ app_name }}</a>
+      {% if user %}
+      <nav class="nav" aria-label="Main">
+        <a href="{{ url_for('views.dashboard') }}" {% if request.endpoint == 'views.dashboard' %}aria-current="page"{% endif %}>Overview</a>
+        <a href="{{ url_for('views.rules') }}" {% if request.endpoint == 'views.rules' %}aria-current="page"{% endif %}>Rules</a>
+        <a href="{{ url_for('views.activity') }}" {% if request.endpoint == 'views.activity' %}aria-current="page"{% endif %}>Activity</a>
+        <a href="{{ url_for('views.settings') }}" {% if request.endpoint == 'views.settings' %}aria-current="page"{% endif %}>Settings</a>
+      </nav>
+      {% else %}
+      <nav class="nav" aria-label="Main">
+        <a href="{{ url_for('views.index') }}#pricing">Pricing</a>
+        <a href="{{ url_for('views.privacy') }}">Privacy</a>
+        <a class="btn btn-small" href="{{ url_for('auth.login') }}">Sign in with Google</a>
+      </nav>
+      {% endif %}
+    </div>
+  </header>
+
+  {% if user %}
+    {% if reauth %}
+    <div class="banner banner-error" role="alert"><div class="wrap">
+      Gmail access stopped working, so filtering is paused.
+      <form method="post" action="{{ url_for('auth.connect_gmail') }}" class="inline">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button class="linklike">Reconnect Gmail</button>
+      </form>
+    </div></div>
+    {% elif state == 'expired' %}
+    <div class="banner banner-warn" role="status"><div class="wrap">
+      Your free trial has ended, so filtering is paused. <a href="{{ url_for('views.dashboard') }}#plan">Choose a plan</a> to turn it back on.
+    </div></div>
+    {% elif state == 'past_due' %}
+    <div class="banner banner-warn" role="status"><div class="wrap">
+      Your last payment didn't go through. Filtering stays on while Stripe retries.
+      <form method="post" action="{{ url_for('billing.portal') }}" class="inline">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button class="linklike">Update your card</button>
+      </form>
+    </div></div>
+    {% endif %}
+  {% endif %}
+
+  <main id="main" class="wrap {% block main_class %}{% endblock %}">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+      <div class="flashes">
+        {% for cat, msg in messages %}<p class="flash flash-{{ cat }}" role="status">{{ msg }}</p>{% endfor %}
+      </div>
+      {% endif %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="footer">
+    <div class="wrap footer-inner">
+      <span>{{ app_name }} reads only the sender, recipient and subject lines of your mail.</span>
+      <span class="footer-links">
+        <a href="{{ url_for('views.privacy') }}">Privacy</a>
+        <a href="{{ url_for('views.terms') }}">Terms</a>
+        <a href="mailto:{{ support_email }}">Contact</a>
+        {% if user %}
+        <form method="post" action="{{ url_for('auth.logout') }}" class="inline">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button class="linklike">Sign out</button>
+        </form>
+        {% endif %}
+      </span>
+    </div>
+  </footer>
+  <script src="{{ url_for('static', filename='time.js') }}" defer></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,11 @@
+flask>=3.1,<4
+flask-wtf>=1.2
+gunicorn>=23
+stripe>=16,<17
+google-api-python-client>=2.150
+google-auth>=2.35
+google-auth-oauthlib>=1.2
+google-cloud-firestore>=2.19
+google-cloud-tasks>=2.18
+cryptography>=43
+requests>=2.32

@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %}Rules · {{ app_name }}{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1>Rules</h1>
+  <p class="lede">A message goes to Spam when its sender name or subject contains one of these words. Spacing, dots, symbols, accents and look-alike numbers are ignored, so “F1D.ELI-TY” counts as “fidelity”.</p>
+</div>
+
+<section class="section-tight">
+  <h2>Your keywords</h2>
+  <form method="post" class="inline-form">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="action" value="add_keyword">
+    <label for="kw" class="sr-only">Keyword</label>
+    <input id="kw" name="value" placeholder="e.g. Fidelity Life" required autocomplete="off">
+    <button class="btn">Add keyword</button>
+  </form>
+  {% if user.keywords %}
+  <ul class="chips">
+    {% for k in user.keywords %}
+    <li class="chip">{{ k }}
+      <form method="post" class="inline">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="action" value="remove_keyword">
+        <input type="hidden" name="value" value="{{ k }}">
+        <button class="chip-x" aria-label="Remove {{ k }}">×</button>
+      </form>
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p class="empty">No keywords yet. Add one above, or let us suggest some from your Spam folder.</p>
+  {% endif %}
+  {% if user.gmail_connected and access %}
+  <p><a href="{{ url_for('views.onboarding', **{'from': 'rules'}) }}">Suggest keywords from my Spam folder</a></p>
+  {% endif %}
+</section>
+
+<section class="section-tight">
+  <h2>Built-in rules</h2>
+  <p class="muted">Common warranty and insurance senders ({{ defaults|join(', ') }}), plus two tricks spammers use: a forged recipient address and sender addresses stuffed with repeated “.Ltd.” segments.</p>
+  <form method="post" class="toggle-form">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="action" value="toggle_defaults">
+    {% if user.use_default_rules != false %}
+      <input type="hidden" name="enabled" value="0">
+      <span><span class="dot dot-on"></span> On</span> <button class="btn btn-quiet btn-small">Turn off</button>
+    {% else %}
+      <input type="hidden" name="enabled" value="1">
+      <span><span class="dot dot-off"></span> Off</span> <button class="btn btn-quiet btn-small">Turn on</button>
+    {% endif %}
+  </form>
+</section>
+
+<section class="section-tight">
+  <h2>Always keep</h2>
+  <p class="muted">Mail from these senders is never moved, even if it matches a keyword. Clicking “Not spam” in Activity adds a sender here.</p>
+  <form method="post" class="inline-form">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="action" value="add_allow">
+    <label for="al" class="sr-only">Email or domain</label>
+    <input id="al" name="value" placeholder="name@example.com or @example.com" required autocomplete="off">
+    <button class="btn btn-quiet">Add sender</button>
+  </form>
+  {% if user.allowlist %}
+  <ul class="chips">
+    {% for a in user.allowlist %}
+    <li class="chip chip-keep">{{ a }}
+      <form method="post" class="inline">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="action" value="remove_allow">
+        <input type="hidden" name="value" value="{{ a }}">
+        <button class="chip-x" aria-label="Remove {{ a }}">×</button>
+      </form>
+    </li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+</section>
+{% endblock %}

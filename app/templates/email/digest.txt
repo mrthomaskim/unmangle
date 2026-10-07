@@ -1,0 +1,8 @@
+{{ app_name }} moved {{ count }} spam email{{ '' if count == 1 else 's' }} out of your inbox this week.
+
+Most frequent senders:
+{% for name, n in top %}  {{ n }} × {{ name }}
+{% endfor %}
+Caught something you wanted? Review and restore: {{ activity_url }}
+
+Turn off these emails: {{ settings_url }}

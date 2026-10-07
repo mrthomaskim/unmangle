@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Clean up · {{ app_name }}{% endblock %}
+{% block content %}
+<div class="page-head">
+  <p class="progress">Step 2 of 2</p>
+  <h1>Clear out what already got through</h1>
+  <p class="lede">From now on, new mail is checked as it arrives. We can also go back through your inbox and move older spam that matches your rules.</p>
+</div>
+<form method="post" action="{{ url_for('views.backfill') }}" class="inline-form">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <label for="days">Check mail from the last</label>
+  <select id="days" name="days"><option value="60">60 days</option><option value="30">30 days</option></select>
+  <button class="btn">Run cleanup</button>
+</form>
+<p><a href="{{ url_for('views.dashboard') }}">Skip, go to my overview</a></p>
+{% endblock %}
