@@ -1,0 +1,19 @@
+.venv/
+__pycache__/
+*.pyc
+.env
+.env.*
+!.env.example
+client_secret*.json
+token.json
+.pytest_cache/
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+tfplan
+*.tfplan
+crash.log
+infra/terraform/terraform.tfvars
+infra/terraform/backend.hcl
